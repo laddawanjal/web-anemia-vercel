@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำแนะนำการถ่ายรูป</title>
+    <!-- ลิงก์ไปยังไฟล์ CSS สำหรับจัดรูปแบบ -->
+    <link rel="stylesheet" href="style4.css">
+</head>
+<body>
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+
+    <h1>คำแนะนำการถ่ายรูป</h1>
+    <ol>
+        <li><strong>เตรียมตัว</strong>
+            <ul>
+                <li>ใช้ถุงใต้ตาเป็นจุดสังเกต</li>
+                <li>ควรใช้แสงสว่างเพียงพอ</li>
+                <li>ทำความสะอาดรอบดวงตา</li>
+                <li>ตรวจสอบให้ไม่มีสิ่งใดบังถุงใต้ตา</li>
+            </ul>
+        </li>
+        <li><strong>เมื่อเข้าสู่หน้าถ่ายรูป</strong>
+            <ul>
+                <li><strong>ขั้นตอนการถ่าย:</strong>
+                    <ul>
+                        <li>ดึงเปลือกตาขวาหรือตาซ้ายลง</li>
+                        <li>เลื่อนตาและถุงใต้ตาให้อยู่ในวงกลม</li>
+                    </ul>
+                </li>
+                <li><strong>ตรวจสอบตำแหน่งตา:</strong>
+                    <ul>
+                        <li>หากตาอยู่ในกรอบวงกลม วงกลมจะเปลี่ยนเป็นสีเขียว</li>
+                    </ul>
+                </li>
+                <li><strong>กดถ่ายรูป:</strong>
+                    <ul>
+                        <li>หากมั่นใจในตำแหน่ง</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ol>
+
+    <!-- ปุ่มสำหรับเชื่อมไปยังหน้าถ่ายภาพ -->
+    <button id="button" onclick="goToCapturePage()">เริ่มถ่ายภาพ</button>
+
+    <!-- สคริปต์สำหรับเปลี่ยนหน้า -->
+    <script>
+        // ฟังก์ชันสำหรับเปลี่ยนไปยังหน้า index5.html
+        function goToCapturePage() {
+            window.location.href = "index5.html"; // เปลี่ยนไปยังหน้าถ่ายรูป
+        }
+    </script>
+</body>
+</html>

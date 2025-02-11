@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Classifier</title>
+  <link rel="stylesheet" href="style7.css">
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+    * { font-family: Noto Sans Thai; }
+    
+  </style>
+</head>
+<body>
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>ผลการวิเคราะห์รูปภาพ</h1>
+        <div class="image-preview" id="imagePreview">
+          <p>No image selected</p>
+        </div>
+        <button id="predictButton" disabled>เริ่มการวิเคราะห์</button>
+        <div id="result" class="result"></div>
+    </div>
+
+  <!-- โหลด TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
+  <script>
+    
+
+    // --- Section 1: โหลดภาพจาก SessionStorage ---
+    // ส่วนนี้จะโหลดภาพที่ผู้ใช้ถ่ายหรือเลือกไว้ก่อนหน้า
+    
+  let model;
+
+  // --- Section 1: โหลดภาพจาก SessionStorage ---
+  window.onload = () => {
+    const capturedImage = sessionStorage.getItem("capturedImage");
+    const phone = sessionStorage.getItem("phone");
+
+    if (!capturedImage || !phone) {
+      alert("ข้อมูลไม่ครบถ้วน กรุณาถ่ายรูปและกรอกข้อมูลใหม่");
+      window.location.href = "index6.html";
+      return;
+    }
+
+    const previewContainer = document.getElementById("imagePreview");
+    previewContainer.innerHTML = "";
+
+    const img = document.createElement("img");
+    img.src = capturedImage;
+    img.alt = "Captured Image";  
+    img.style.maxWidth = "80%";
+    img.style.maxHeight = "60vh";
+    previewContainer.appendChild(img);
+
+    document.getElementById("predictButton").disabled = false;
+  };
+
+  // --- Section 2: โหลดโมเดล ---
+  async function loadModel() {
+    try {
+      model = await tf.loadLayersModel("./model/model.json");
+      console.log("โมเดลโหลดสำเร็จ!");
+      document.getElementById("predictButton").disabled = false;
+    } catch (error) {
+      console.error("Error loading model:", error);
+      document.getElementById("result").innerHTML =
+        "<p>เกิดข้อผิดพลาดในการโหลดโมเดล</p>";
+    }
+  }
+  loadModel();
+
+  // --- Section 3: การวิเคราะห์รูปภาพ --- 
+document.getElementById("predictButton").addEventListener("click", async () => {
+  try {
+    const finalImageSrc = sessionStorage.getItem("capturedImage");
+    const phone = sessionStorage.getItem("phone");
+
+    if (!finalImageSrc || !phone) {
+      alert("ข้อมูลไม่ครบถ้วน กรุณาถ่ายรูปและกรอกข้อมูลใหม่");
+      return;
+    }
+
+    // วิเคราะห์ภาพ
+    const image = await loadImageFromSrc(finalImageSrc);
+    const tensor = tf.browser.fromPixels(image)
+      .resizeBilinear([224, 224])
+      .toFloat()
+      .expandDims();
+
+    const predictions = [];
+
+    // ทำการวิเคราะห์ซ้ำ 3 รอบ
+    for (let i = 0; i < 3; i++) {
+      const prediction = await model.predict(tensor).data();
+      const predictedClass = prediction.indexOf(Math.max(...prediction));
+      predictions.push(predictedClass);
+
+      // แสดงผลใน log terminal ทุกครั้ง
+      const metadataResponse = await fetch("./model/metadata.json");
+      const metadata = await metadataResponse.json();
+      const resultMessage = metadata.labels[predictedClass] || "ไม่สามารถระบุผลลัพธ์ได้";
+
+      console.log(`ผลการวิเคราะห์รอบที่ ${i + 1}:`, resultMessage);
+    }
+
+    // ใช้ผลการทำนายรอบสุดท้ายเพื่อแสดงผลในหน้าเว็บ
+    const finalPrediction = predictions[predictions.length - 1];
+    const metadataResponse = await fetch("./model/metadata.json");
+    const metadata = await metadataResponse.json();
+    const resultMessage = metadata.labels[finalPrediction] || "ไม่สามารถระบุผลลัพธ์ได้";
+
+    // กำหนดข้อความภาษาไทยและสี
+    let thaiMessage = "";
+    let resultColor = "";
+    if (resultMessage === "anemia") {
+      thaiMessage = "มีภาวะโลหิตจาง";
+      resultColor = "red";
+    } else if (resultMessage === "no risk anemia") {
+      thaiMessage = "ไม่มีภาวะเป็นโลหิตจาง";
+      resultColor = "green";
+    }
+
+    // แสดงผลลัพธ์บนหน้าเว็บ
+    document.getElementById("result").innerHTML = `
+      <strong>ผลการวิเคราะห์:</strong> ${resultMessage}<br>
+      <span class="thai-result" style="color: ${resultColor};">${thaiMessage}</span>
+    `;
+
+    // ส่งข้อมูลไปยังเซิร์ฟเวอร์
+    const response = await fetch("/upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: finalImageSrc, // รูปภาพ Base64
+        phone: phone, // เบอร์โทรศัพท์ของผู้ใช้
+        analysisResult: resultMessage, // ผลลัพธ์การวิเคราะห์
+      }),
+    });
+
+    if (response.ok) {
+      // อัปโหลดสำเร็จ
+    } else {
+      const errorResult = await response.json();
+      alert(errorResult.message || "เกิดข้อผิดพลาดในการอัปโหลด");
+    }
+  } catch (error) {
+    console.error("Error during prediction:", error);
+    document.getElementById("result").innerHTML =
+      "<p>เกิดข้อผิดพลาดในการวิเคราะห์</p>";
+  }
+});
+
+
+
+  function loadImageFromSrc(src) {
+    return new Promise((resolve, reject) => {
+      if (!src) {
+        reject(new Error("Invalid image source"));
+        return;
+      }
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+</script>
+
+</body>
+</html>

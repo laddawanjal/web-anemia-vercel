@@ -1,0 +1,98 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f4f6; /* พื้นหลังอ่อน */
+    color: #333;
+}
+
+
+  /* ส่วนหัว */
+.header {
+    display: flex; /* ใช้ Flexbox */
+    align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+    justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+    background-color: #64019a; /* สีพื้นหลัง */
+    padding: 20px; /* เพิ่มระยะห่างภายใน */
+    border-radius: 0 0 15px 15px; /* มุมโค้งด้านล่าง */
+    color: white; /* สีข้อความ */
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+}
+  
+  /* โลโก้ในส่วนหัว */
+.logo {
+    height: 70px;
+    margin-right: 15px; /* ระยะห่างระหว่างโลโก้กับข้อความ */
+}
+  
+  /* ข้อความในส่วนหัว */
+.header-text h3 {
+    font-size: 1.5em;
+    margin: 0;
+    font-weight: bold;
+}
+  
+.header-text h4 {
+    font-size: 1em;
+    margin: 0;
+    color: #ffa500;
+}
+
+/* จัด h1 ให้อยู่ตรงกลาง */
+h1 {
+    margin-bottom: 20px; /* ระยะห่างด้านล่าง */
+    margin-top: 5px; /* เลื่อนข้อความขึ้นด้านบน */
+    text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+    font-size: 2.5em; /* เพิ่มขนาดตัวอักษร */
+    font-weight: bold; /* ทำให้ตัวอักษรหนา */
+    color: #9b150b; /* สีตัวอักษร */
+}
+
+/* จัด h2 ให้อยู่ตรงกลาง */
+h2 {
+    margin-bottom: 40px; /* ระยะห่างด้านล่าง */
+    margin-top: -10px; /* เลื่อนข้อความขึ้นด้านบน */
+    text-align: center; /* จัดข้อความให้อยู่ตรงกลาง */
+    font-size: 1.3em; /* เพิ่มขนาดตัวอักษร */
+    font-weight: bold; /* ทำให้ตัวอักษรหนา */
+    color: #b73838; /* สีตัวอักษร */
+}
+
+
+/* จัดรูปภาพให้อยู่ตรงกลาง */
+#resultImage {
+    max-width: 85%; /* ขนาดสูงสุด 80% ของความกว้างหน้าจอ */
+    max-height: 65vh; /* ขนาดสูงสุด 60% ของความสูงหน้าจอ */
+    border: 2px solid rgb(198, 1, 1);
+    border-radius: 10px;
+    margin: 0 auto 20px; /* จัดให้อยู่ตรงกลางและเพิ่มระยะห่างด้านล่าง */
+    display: block; /* ทำให้จัดการตำแหน่งในบรรทัดเดียวได้ */
+    object-fit: contain; /* ยืดหยุ่นรูปตามขนาดที่กำหนดโดยไม่เสียอัตราส่วน */
+}
+
+/* จัดปุ่มทั้งหมดให้อยู่ตรงกลาง */
+#resultButtons {
+    text-align: center; /* จัดกลุ่มปุ่มให้อยู่ตรงกลาง */
+}
+
+#resultButtons button {
+    position: relative; /* เปิดใช้งานการปรับตำแหน่ง */
+    top: -25px; /* เลื่อนปุ่มขึ้น 10px */
+    margin: 10px;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background-color: #c23629;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+
+/* สไตล์เมื่อชี้ปุ่ม */
+#resultButtons button:hover {
+    background-color: #510975;
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="style3-2.css">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+        *{font-family: Noto Sans Thai;}
+    </style>
+</head>
+<body>
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>เข้าสู่ระบบ</h1>
+        <img src="blood.png" alt="Blood Icon" class="icon">
+        <form id="submission-form">
+            <label for="phone">เบอร์โทรศัพท์:</label>
+            <div class="input-container">
+                <input type="tel" id="phone" name="phone" placeholder="เบอร์โทรศัพท์" required>
+            </div>
+            <button type="submit">ยืนยันการเข้าสู่ระบบ</button>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector("#submission-form").addEventListener("submit", async (e) => {
+            e.preventDefault(); // ยกเลิกการรีเฟรชหน้าเมื่อส่งฟอร์ม
+
+            const formData = new FormData(e.target); // ดึงข้อมูลจากฟอร์ม
+            const data = Object.fromEntries(formData.entries()); // แปลงข้อมูลเป็นออบเจกต์
+
+            try {
+                // ส่งคำขอไปยัง API เพื่อตรวจสอบเบอร์โทร
+                const response = await fetch("/api/check-phone", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json(); // รับผลลัพธ์จาก API
+
+                if (response.ok) {
+                    // หากพบเบอร์โทรในระบบ
+                    const phone = data.phone;
+                    sessionStorage.setItem('phone', phone); // บันทึกเบอร์โทรใน SessionStorage
+                    alert("เข้าสู่ระบบสำเร็จ!"); // แจ้งเตือน
+                    window.location.href = `index4.html?phone=${encodeURIComponent(phone)}`; // ไปยังหน้าถัดไป
+                } else {
+                    // หากไม่พบเบอร์โทรในระบบ
+                    alert(result.message || "เบอร์โทรนี้ยังไม่มีในระบบ กรุณาลงทะเบียนใหม่");
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("เกิดข้อผิดพลาดในการตรวจสอบข้อมูล กรุณาลองใหม่อีกครั้ง");
+            }
+        });
+    </script>
+</body>
+</html>

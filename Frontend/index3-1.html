@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Submission</title>
+    <link rel="stylesheet" href="style3-1.css">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+      *{font-family: Noto Sans Thai;}
+  </style>
+</head>
+<body>
+    <!-- ส่วนหัว -->
+<div class="header">
+  <img src="wu.png" alt="Logo" class="logo">
+  <div class="header-text">
+      <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+      <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+  </div>
+</div>
+
+<h1>ลงทะเบียนผู้ใช้ใหม่</h1>
+<form id="submission-form">
+    <!-- ช่องกรอกข้อมูล -->
+  <label for="name">ชื่อ-นามสกุล:</label>
+  <input type="text" id="name" name="name" required>
+
+  <label for="gender">เพศ:</label>
+  <select id="gender" name="gender" required>
+    <option value="male">หญิง</option>
+    <option value="female">ชาย</option>
+  </select>
+
+  <label for="dob">วัน/เดือน/ปีเกิด:</label>
+  <input type="date" id="dob" name="dob" required>
+
+  <label for="nationality">เชื้อชาติ:</label>
+  <input type="text" id="nationality" name="nationality" required>
+
+  <label for="phone">เบอร์โทรศัพท์:</label>
+  <input type="tel" id="phone" name="phone" required>
+  
+    <!-- ปุ่มส่งข้อมูล -->
+  <button type="submit">ยืนยันการลงทะเบียน</button>
+</form>
+
+<script src="script.js"></script>
+  
+</body>
+</html>

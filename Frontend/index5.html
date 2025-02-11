@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ถ่ายรูปตา</title>
+    <link rel="stylesheet" href="style5.css">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+        *{font-family: Noto Sans Thai;}
+    </style>
+</head>
+<body>
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+    
+    <h1 id="info-title">ถ่ายรูปตา</h1>
+    <p id="ppp">กรุณาเลื่อนตาซ้ายหรือขวาไปที่กรอบวงกลม</p>
+
+    <!-- กล้องถ่ายรูป -->
+    <div id="camera-container">
+        <video id="video" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+    </div>
+
+    <!-- ปุ่มถ่ายรูป -->
+    <button id="captureButtonnn">ถ่ายรูป</button>
+
+    <!-- สคริปต์การทำงาน -->
+    <script defer src="./face-api.js-master/dist/face-api.min.js"></script>
+    <script>
+        let stream = null;
+
+        // ฟังก์ชันเปิดกล้อง
+        async function setupCamera() {
+            const video = document.getElementById('video');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment', // กล้องหลัง
+                        width: { ideal: 880 },    // กำหนดความกว้าง
+                        height: { ideal: 820 }     // กำหนดความสูง (16:9)
+                    }
+                });
+
+                video.srcObject = stream;
+                return new Promise(resolve => {
+                    video.onloadedmetadata = () => resolve(video);
+                });
+            } catch (error) {
+                alert("ไม่สามารถเปิดกล้องได้: " + error.message);
+            }
+        }
+// โหลดโมเดลและเริ่มตรวจจับ
+async function loadModelsAndDetect() {
+    const MODEL_URL = './face-models';
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('overlay');
+    const displaySize = { width: video.videoWidth, height: video.videoHeight };
+    faceapi.matchDimensions(canvas, displaySize);
+
+    async function detectAndDraw() {
+        const detections = await faceapi.detectAllFaces(video).withFaceLandmarks();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // กำหนดวงกลมตรงกลาง
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 160;  // รัศมีของวงกลม
+        let circleColor = 'red';  // สีเริ่มต้นของวงกลม
+
+        resizedDetections.forEach(detection => {
+            // ตำแหน่งของตาขวาและตาซ้าย
+            const leftEye = detection.landmarks.getLeftEye();
+            const rightEye = detection.landmarks.getRightEye();
+
+            const leftEyeX = leftEye[0].x;
+            const leftEyeY = leftEye[0].y;
+            const rightEyeX = rightEye[0].x;
+            const rightEyeY = rightEye[0].y;
+
+            // คำนวณระยะห่างจากศูนย์กลางของวงกลม
+            const distLeftX = centerX - leftEyeX;
+            const distLeftY = centerY - leftEyeY;
+            const distRightX = centerX - rightEyeX;
+            const distRightY = centerY - rightEyeY;
+
+            // คำนวณระยะห่าง
+            const distanceLeft = Math.sqrt(distLeftX * distLeftX + distLeftY * distLeftY);
+            const distanceRight = Math.sqrt(distRightX * distRightX + distRightY * distRightY);
+
+            // ตรวจสอบว่าตาซ้ายหรือตาขวาอยู่ในวงกลม
+            if (distanceLeft < radius || distanceRight < radius) {
+                circleColor = 'green';  // ถ้าในวงกลมจะเปลี่ยนสีเป็นเขียว
+            }
+        });
+
+        // วาดวงกลม
+        ctx.strokeStyle = circleColor;
+        ctx.lineWidth = 10; // เพิ่มความหนาของเส้นวงกลม
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        requestAnimationFrame(detectAndDraw);
+    }
+
+    detectAndDraw();
+}
+
+// ฟังก์ชันถ่ายรูป
+function captureImage() {
+    const video = document.getElementById('video');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // ขนาดของ canvas ที่ต้องการให้แสดง
+    canvas.width = 540; // ความกว้างของภาพสุดท้าย
+    canvas.height = 480; // ความสูงของภาพสุดท้าย
+
+    // กำหนดพื้นที่ของวิดีโอที่จะซูม
+    const zoomFactor = 3; // อัตราการซูม (2 เท่า)
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    // คำนวณตำแหน่งเริ่มต้นเพื่อซูมกึ่งกลาง
+    const sourceX = (videoWidth / 2) - (videoWidth / (2 * zoomFactor));
+    const sourceY = (videoHeight / 2) - (videoHeight / (2 * zoomFactor));
+    const sourceWidth = videoWidth / zoomFactor;
+    const sourceHeight = videoHeight / zoomFactor;
+
+    // วาดภาพที่ซูมลงบน canvas
+    ctx.drawImage(
+        video,
+        sourceX, sourceY, sourceWidth, sourceHeight, // พื้นที่ของวิดีโอที่จะนำมาซูม
+        0, 0, canvas.width, canvas.height            // พื้นที่ของ canvas ที่แสดง
+    );
+
+    const imageDataUrl = canvas.toDataURL();
+    console.log("Captured Image:", imageDataUrl); // Debug รูปภาพ
+
+    // บันทึกรูปภาพลงใน SessionStorage
+    sessionStorage.setItem('capturedImage', imageDataUrl); // บันทึกรูปภาพ
+    console.log("Captured Image stored in SessionStorage:", sessionStorage.getItem("capturedImage"));
+
+
+    // Debug ค่าใน SessionStorage
+    console.log("SessionStorage After Capture:", sessionStorage);
+
+
+    // เปลี่ยนไปยังหน้าผลลัพธ์
+    window.location.href = 'index6.html';
+}
+
+        document.getElementById('captureButtonnn').addEventListener('click', captureImage);
+
+        // เริ่มต้นn
+        window.onload = async () => {
+            const video = await setupCamera();
+            await loadModelsAndDetect();
+        };
+    </script>
+</body>
+</html>

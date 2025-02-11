@@ -1,0 +1,111 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f4f6; /* พื้นหลังอ่อน */
+    color: #333;
+  }
+
+  /* ส่วนหัว */
+  .header {
+    display: flex; /* ใช้ Flexbox */
+    align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+    justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+    background-color: #64019a; /* สีพื้นหลัง */
+    padding: 20px; /* เพิ่มระยะห่างภายใน */
+    border-radius: 0 0 15px 15px; /* มุมโค้งด้านล่าง */
+    color: white; /* สีข้อความ */
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  }
+  
+  /* โลโก้ในส่วนหัว */
+  .logo {
+    height: 70px;
+    margin-right: 15px; /* ระยะห่างระหว่างโลโก้กับข้อความ */
+  }
+  
+  /* ข้อความในส่วนหัว */
+  .header-text h3 {
+    font-size: 1.5em;
+    margin: 0;
+    font-weight: bold;
+  }
+  
+  .header-text h4 {
+    font-size: 1em;
+    margin: 0;
+    color: #ffa500;
+  }
+
+  
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+h1 {
+    color: #920505;
+    margin-bottom: 20px;
+    font-size: 2.6em;
+    margin-top: 10px; /* เลื่อน h1 ขึ้นไปข้างบน */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 150px; /* เลื่อน form ขึ้นไปข้างบน */
+}
+
+
+label {
+    font-size: 1.2em;
+    text-align: left;
+    color: #000000;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+input[type="tel"] {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 1em;
+}
+
+button {
+    background-color: #c4291b;
+    color: white;
+    font-size: 1.3em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #a32219;
+}
+
+/* รูปภาพ */
+.icon {
+    width: 250px; /* ขยายความกว้าง */
+    height: auto; /* รักษาสัดส่วนของรูป */
+    margin: -135px 0; /* ระยะห่างด้านบนและล่าง */
+    position: relative; /* ใช้เพื่อควบคุมตำแหน่ง */
+    left: -5px; /* เลื่อนไปทางขวา 50px */
+    top: 60px; /* เลื่อนขึ้นไปด้านบน 20px */
+  }

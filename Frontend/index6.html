@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ผลลัพธ์รูปภาพ</title>
+    <link rel="stylesheet" href="style6.css"> <!-- เชื่อมต่อกับไฟล์ CSS -->
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+        *{font-family: Noto Sans Thai;}
+    </style>
+</head>
+<body>
+    <!-- ส่วนหัว -->
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+
+    <!-- หัวข้อผลลัพธ์ -->
+    <h1 id="result-title">ผลลัพธ์รูปภาพ</h1>
+
+    <!-- แสดงรูปภาพที่ถ่ายได้ -->
+    <img id="resultImage" alt="รูปที่ถ่ายได้">
+
+    <!-- แสดงข้อความแจ้งผู้ใช้ -->
+    <h2 id="userName">กรุณาตรวจสอบรูปภาพ<br>ก่อนกดยืนยัน!!</h2>
+
+    <!-- ปุ่มสำหรับถ่ายรูปใหม่และยืนยัน -->
+    <div id="resultButtons">
+        <button onclick="retakeImage()">ถ่ายรูปใหม่</button>
+        <button onclick="confirmImage()">ยืนยันรูปภาพ</button>
+    </div>
+
+    <script>
+        // เมื่อโหลดหน้าเว็บ
+        window.onload = () => {
+            const capturedImage = sessionStorage.getItem('capturedImage');
+
+            // ดึงรูปภาพที่ถ่ายจาก sessionStorage
+            if (capturedImage) {
+                const resultImage = document.getElementById('resultImage');
+                resultImage.src = capturedImage;
+                resultImage.style.maxWidth = '80%'; // กำหนดขนาดสูงสุด
+                resultImage.style.maxHeight = '60vh'; // กำหนดขนาดสูงสุด
+            } else {
+                alert("ไม่มีรูปภาพที่ถ่ายได้");
+                window.location.href = 'index5.html'; // กลับไปที่หน้าถ่ายรูปหากไม่มีรูป
+            }
+        };
+
+        // ฟังก์ชันสำหรับถ่ายรูปใหม่
+        function retakeImage() {
+            window.location.href = 'index5.html'; // กลับไปที่หน้าถ่ายรูป
+        }
+
+        
+    // ฟังก์ชันสำหรับยืนยันรูปภาพ (ไม่มีการอัปโหลด)
+    function confirmImage() {
+            const resultImage = document.getElementById('resultImage');
+            const imageData = resultImage.src;
+
+            if (!imageData) {
+                alert('ไม่มีรูปภาพ กรุณาถ่ายใหม่');
+                return;
+            }
+
+            sessionStorage.setItem('capturedImage', imageData); // เก็บรูปภาพไว้ใน sessionStorage
+            window.location.href = 'index7.html'; // เปลี่ยนไปหน้าถัดไป
+        }
+    </script>
+
+
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- กำหนดชุดตัวอักษรสำหรับเว็บเพจ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ทำให้เว็บเพจรองรับการแสดงผลบนหน้าจอทุกขนาด -->
+    <title>Screening Page</title> <!-- ชื่อของหน้าเว็บ -->
+    <link rel="stylesheet" href="style1.css"> <!-- ลิงก์ไปยังไฟล์ CSS -->
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900);
+        *{font-family: Noto Sans Thai;}
+    </style>
+</head>
+<body>
+      <!-- ส่วนหัว -->
+  <div class="header">
+    <img src="wu.png" alt="Logo" class="logo">
+    <div class="header-text">
+        <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+        <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+    </div>
+  </div>
+    <h1>คัดกรองก่อนเข้าสู่ระบบ</h1>
+    <div class="screening-box">
+        <ul>
+            <li>✔️ อายุ 18 ปี ขึ้นไป</li>
+            <li>✔️ มีโรคทางเยื่อบุตา หรือใช้ยาหยอดตาภายใน 1 เดือน</li>
+            <li>✔️ เคยเสียเลือดหรือเคยได้รับเลือดภายใน 1 เดือน</li>
+            <li>✔️ มีประวัติการได้รับการฉายแสงหรือได้รับยามีผลข้างเคียงเป็นโรคมะเร็งที่อยู่ในระยะฉุกเฉิน</li>
+        </ul>
+    </div>
+    <p>กรุณากดเพื่อยืนยัน หากผ่านเกณฑ์ที่กำหนด</p>
+    <button id="confirmButton" class="btn">ยืนยันการคัดกรอง</button>
+</div>
+
+    <!-- สคริปต์ JavaScript -->
+    <script>
+        // เมื่อผู้ใช้กดปุ่ม "ยืนยันการคัดกรอง"
+        document.getElementById("confirmButton").addEventListener("click", function () {
+            // เปลี่ยนเส้นทางไปยังหน้า index2.html
+            window.location.href = "index2.html";
+        });
+    </script>
+</body>
+</html>

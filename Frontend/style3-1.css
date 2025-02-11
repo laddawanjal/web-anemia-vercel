@@ -1,0 +1,121 @@
+body {
+    margin: 0;
+    background-color: #f4f4f9;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f4f6; /* พื้นหลังอ่อน */
+    color: #333;
+    }
+
+  /* ส่วนหัว */
+.header {
+  display: flex; /* ใช้ Flexbox */
+  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+  background-color: #64019a; /* สีพื้นหลัง */
+  padding: 20px; /* เพิ่มระยะห่างภายใน */
+  border-radius: 0 0 15px 15px; /* มุมโค้งด้านล่าง */
+  color: white; /* สีข้อความ */
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+}
+
+/* โลโก้ในส่วนหัว */
+.logo {
+  height: 70px;
+  margin-right: 15px; /* ระยะห่างระหว่างโลโก้กับข้อความ */
+}
+
+/* ข้อความในส่วนหัว */
+.header-text h3 {
+  font-size: 1.5em;
+  margin: 0;
+  font-weight: bold;
+}
+
+.header-text h4 {
+  font-size: 1em;
+  margin: 0;
+  color: #ffa500;
+}
+
+  
+
+/* ชื่อฟอร์ม */
+h1 {
+  font-size: 2.0em !important; /* บังคับขนาดตัวอักษร */
+  text-align: center;
+  margin: 10px 0;
+  color: #47037e;
+}
+
+
+/* ฟอร์ม */
+form {
+  max-width: 335px; /* กำหนดความกว้างสูงสุดของฟอร์ม */
+  margin: 10px auto; /* จัดให้อยู่ตรงกลาง */
+  padding: 20px; /* ระยะห่างภายใน */
+  background: #fababa; /* พื้นหลังสีขาว */
+  border-radius: 10px; /* มุมโค้ง */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+}
+
+/* ป้ายกำกับ */
+label {
+  display: block; /* แสดงในบรรทัดใหม่ */
+  margin-top: 10px; /* เพิ่มระยะห่างด้านบน */
+  font-size: 1.1em; /* ขนาดตัวอักษร */
+  color: #333; /* สีตัวอักษร */
+}
+
+/* ช่องกรอกข้อมูล */
+input, select {
+  width: 80%; /* กำหนดความกว้าง 80% */
+  padding: 10px; /* ระยะห่างภายใน */
+  margin-top: 5px; /* เพิ่มระยะห่างด้านบน */
+  border: 1px solid #ccc; /* ขอบสีเทา */
+  border-radius: 5px; /* มุมโค้ง */
+  background-color: #f9f7ff; /* สีพื้นหลัง */
+  color: #47037e; /* สีข้อความในช่องกรอก */
+  font-size: 0.7em; /* เพิ่มขนาดตัวอักษร */
+}
+
+/* เพิ่มเอฟเฟกต์เมื่อโฟกัส */
+input:focus, select:focus {
+  outline: none; /* ลบเส้นขอบเริ่มต้นเมื่อโฟกัส */
+  border: 1px solid #9c0406; /* ขอบสีม่วงเมื่อโฟกัส */
+  background-color: #ecc1c1; /* สีพื้นหลังเมื่อโฟกัส */
+  color: #000000; /* สีข้อความเมื่อโฟกัส */
+}
+
+
+/* ปุ่ม */
+button {
+  width: 100%; /* ความกว้างเต็ม */
+  padding: 10px; /* ระยะห่างภายใน */
+  background: #c62d2d; /* พื้นหลังสีแดง */
+  color: white; /* สีข้อความ */
+  border: none; /* ไม่มีเส้นขอบ */
+  cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ */
+  border-radius: 40px; /* มุมโค้ง */
+  margin-top: 20px; /* ระยะห่างด้านบน */
+  font-size: 1.1em;
+}
+
+button:hover {
+  background: #c45252; /* เปลี่ยนสีปุ่มเมื่อชี้ */
+}
+
+/* Media Queries สำหรับมือถือ */
+@media (max-width: 768px) {
+form {
+    padding: 15px; /* ลดระยะห่างภายใน */
+}
+
+h1 {
+    font-size: 1.5em; /* ลดขนาดข้อความ */
+}
+
+
+}

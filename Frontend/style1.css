@@ -1,0 +1,167 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f3f4f6; /* พื้นหลังอ่อน */
+    color: #333;
+  }
+/* ส่วนหัว */
+.header {
+    display: flex; /* ใช้ Flexbox */
+    align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+    flex-wrap: wrap; /* รองรับการจัดเรียงใหม่เมื่อหน้าจอเล็ก */
+    justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+    background-color: #64019a; /* สีพื้นหลัง */
+    padding: 20px; /* เพิ่มระยะห่างภายใน */
+    border-radius: 0 0 15px 15px; /* มุมโค้งด้านล่าง */
+    color: white; /* สีข้อความ */
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงา */
+  }
+  
+  /* โลโก้ในส่วนหัว */
+.logo {
+    height: 70px;
+    margin-right: 15px; /* ระยะห่างระหว่างโลโก้กับข้อความ */
+}
+  
+  /* ข้อความในส่วนหัว */
+.header-text h3 {
+    font-size: 1.5em;
+    margin: 0;
+    font-weight: bold;
+}
+  
+.header-text h4 {
+    font-size: 1em;
+    margin: 0;
+    color: #ffa500;
+}
+
+
+
+
+
+
+/* สไตล์สำหรับหัวข้อหลักในคอนเทนเนอร์ */
+h1 {
+    font-size: 2em; /* ขนาดตัวอักษรของหัวข้อ */
+    color: #730fa8; /* กำหนดสีของหัวข้อให้เป็นสีดำ */
+    margin-bottom: 10px; /* เพิ่มระยะห่างด้านล่างของหัวข้อ */
+    margin-top: 45px; /* ขยับหัวข้อแรกลงจากด้านบน */
+    line-height: 1.5; /* กำหนดระยะห่างระหว่างบรรทัดในหัวข้อ */
+    text-align: center;
+}
+
+/* สไตล์สำหรับกล่องการคัดกรอง */
+.screening-box {
+    display: flex; /* ใช้ Flexbox */
+    flex-direction: column; /* จัดเรียงแนวตั้ง */
+    justify-content: center; /* กลางในแนวตั้ง */
+    align-items: center; /* กลางในแนวนอน */
+    background: #ddabf4; /* พื้นหลัง */
+    border-radius: 35px; /* มุมโค้ง */
+    padding: 35px;
+    max-width: 250px;
+    margin: 10px auto;
+    box-shadow: 0 15px 15px rgba(0, 0, 0, 0.15); /* เพิ่มเงา */
+    min-height: 200px; /* ความสูงขั้นต่ำ */
+}
+
+
+
+
+/* สไตล์สำหรับรายการข้อกำหนดในกล่อง */
+.screening-box ul {
+    list-style: none; /* ลบจุดหน้ารายการ */
+    padding: 0; /* ลบระยะห่างภายใน */
+    margin: 0; /* ลบระยะห่างรอบนอก */
+    text-align: left; /* จัดข้อความในรายการให้อยู่ตรงกลาง */
+    font-size: 1.3em; /* ขนาดตัวอักษร */
+    color: #000000; /* สีข้อความ */
+}
+
+
+
+/* สไตล์สำหรับข้อความคำอธิบายในกล่อง */
+/* ข้อความคำอธิบาย */
+p {
+    font-size: 1.1em; /* ขนาดตัวอักษร */
+    color: #ce1414; /* สีข้อความ */
+    margin: 0 auto 20px; /* จัดกึ่งกลางแนวนอนด้วย auto */
+    text-align: center; /* จัดข้อความตรงกลางแนวนอน */
+    max-width: 600px; /* จำกัดความกว้าง */
+    display: block; /* ให้ข้อความจัดการพื้นที่แบบบล็อก */
+}
+
+
+/* สไตล์สำหรับปุ่มทั่วไป */
+.btn {
+    display: block; /* เปลี่ยนปุ่มเป็นบล็อกเพื่อให้ใช้ margin ได้ */
+    background-color: #f85530 !important; /* บังคับพื้นหลังสีแดง */
+    color: white !important; /* บังคับสีข้อความ */
+    border: none !important; /* บังคับไม่มีขอบ */
+    padding: 8px 10px !important; /* เพิ่มระยะห่างภายในปุ่ม */
+    border-radius: 20px !important; /* เพิ่มความโค้ง */
+    font-size: 1.7em !important; /* ขยายขนาดตัวอักษร */
+    cursor: pointer !important; /* บังคับเปลี่ยนเคอร์เซอร์ */
+    transition: background-color 0.3s ease !important; /* เพิ่มเอฟเฟกต์ */
+    margin: 20px auto; /* จัดปุ่มให้อยู่ตรงกลาง */
+    text-align: center; /* จัดข้อความภายในปุ่มให้อยู่ตรงกลาง */
+    max-width: 300px; /* กำหนดความกว้างของปุ่ม */
+}
+
+
+.btn:hover {
+    background-color: #b92e12; /* เปลี่ยนสีพื้นหลังเมื่อเลื่อนเมาส์ */
+}
+
+
+
+
+/* Media Queries สำหรับหน้าจอขนาดเล็ก (มือถือ) */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; /* ลดระยะห่างภายในคอนเทนเนอร์ */
+    }
+
+    .container h1 {
+        font-size: 2em; /* ลดขนาดตัวอักษรของหัวข้อ */
+    }
+
+    .screening-box {
+        padding: 15px; /* ลด padding ภายในกล่อง */
+        max-width: 90%; /* ใช้ความกว้าง 90% ของหน้าจอ */
+    }
+
+    .screening-box ul li {
+        font-size: 0.9em; /* ลดขนาดตัวอักษรของรายการ */
+    }
+
+    .btn {
+        padding: 8px 16px; /* ลดขนาดปุ่ม */
+        font-size: 0.9em; /* ลดขนาดตัวอักษรในปุ่ม */
+    }
+}
+
+/* Media Queries สำหรับหน้าจอขนาดใหญ่ (เดสก์ท็อป) */
+@media (min-width: 769px) {
+    .container {
+        padding: 50px; /* เพิ่มระยะห่างภายในคอนเทนเนอร์ */
+    }
+
+    .container h1 {
+        font-size: 3em; /* เพิ่มขนาดตัวอักษรของหัวข้อ */
+    }
+
+    .screening-box {
+        padding: 30px; /* เพิ่ม padding ภายในกล่อง */
+        max-width: 500px; /* ขยายความกว้างสูงสุดของกล่อง */
+    }
+
+    .btn {
+        padding: 12px 24px; /* เพิ่มระยะห่างในปุ่ม */
+        font-size: 1.1em; /* เพิ่มขนาดตัวอักษรในปุ่ม */
+    }
+}
