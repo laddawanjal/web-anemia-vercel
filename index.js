@@ -98,7 +98,7 @@ const User = mongoose.model("User", userSchema);
 // Middleware//
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "../Frontend")));
+app.use(express.static(path.join(__dirname, "/Frontend")));
 
 // Google Drive API Setup
   // ข้อมูลรับรองสำหรับเชื่อมต่อ Google API
