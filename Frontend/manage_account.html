@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการบัญชี</title>
+    <link rel="stylesheet" href="style_manage.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Noto+Sans+Thai:100,200,300,regular,500,600,700,800,900');
+        * { font-family: 'Noto Sans Thai', sans-serif; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="wu.png" alt="Logo" class="logo">
+        <div class="header-text">
+            <h3>โรงพยาบาลศูนย์การแพทย์</h3>
+            <h4>มหาวิทยาลัยวลัยลักษณ์</h4>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>จัดการบัญชี</h1>
+        <form id="account-form">
+            <label>ชื่อ-นามสกุล:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label>เพศ:</label>
+            <select id="gender" name="gender">
+                <option value="ชาย">ชาย</option>
+                <option value="หญิง">หญิง</option>
+            </select>
+
+            <label>วัน/เดือน/ปีเกิด:</label>
+            <input type="date" id="dob" name="dob" required>
+
+            <label>เชื้อชาติ:</label>
+            <input type="text" id="nationality" name="nationality" required>
+
+            <label>เบอร์โทร:</label>
+            <input type="tel" id="phone" name="phone" required readonly>
+
+            <button type="submit">บันทึกการแก้ไข</button>
+        </form>
+
+        <button id="delete-account" class="delete-btn">ลบบัญชี</button>
+    </div>
+
+    <script>
+        // ดึงเบอร์โทรจาก sessionStorage
+        const phone = sessionStorage.getItem("phone");
+
+        // โหลดข้อมูลบัญชีจาก MongoDB
+        async function loadAccountData() {
+            if (!phone) {
+                alert("ไม่พบเบอร์โทร กรุณาเข้าสู่ระบบใหม่");
+                window.location.href = "index.html";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/get-user?phone=${phone}`);
+                const user = await response.json();
+
+                if (response.ok) {
+                    document.querySelector("#name").value = user.name;
+                    document.querySelector("#gender").value = user.gender;
+                    document.querySelector("#dob").value = user.dob;
+                    document.querySelector("#nationality").value = user.nationality;
+                    document.querySelector("#phone").value = user.phone;
+                } else {
+                    alert("ไม่พบข้อมูลผู้ใช้");
+                    window.location.href = "index.html";
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                alert("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+            }
+        }
+
+        // อัปเดตข้อมูลผู้ใช้ และไปหน้า index4.html
+        document.querySelector("#account-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const updatedData = {
+                name: document.querySelector("#name").value,
+                gender: document.querySelector("#gender").value,
+                dob: document.querySelector("#dob").value,
+                nationality: document.querySelector("#nationality").value,
+                phone: phone
+            };
+
+            try {
+                const response = await fetch("/api/update-user", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedData),
+                });
+
+                if (response.ok) {
+                    alert("อัปเดตข้อมูลสำเร็จ!");
+                    window.location.href = `index4.html?phone=${encodeURIComponent(phone)}`;
+                } else {
+                    alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
+                }
+            } catch (error) {
+                console.error("Error updating user:", error);
+                alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+            }
+        });
+
+        // ลบบัญชีผู้ใช้ และไปหน้า index1.html
+        document.querySelector("#delete-account").addEventListener("click", async () => {
+    if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีนี้?")) {
+        try {
+            const phone = document.querySelector("#phone").value.trim(); // ดึงค่าเบอร์โทรจากฟอร์ม
+
+            const response = await fetch(`/api/delete-user?phone=${phone}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message || "ลบบัญชีสำเร็จ!");
+                sessionStorage.clear(); // ล้างข้อมูล Session
+                window.location.href = "index1.html"; // กลับไปหน้าแรก
+            } else {
+                alert(result.message || "เกิดข้อผิดพลาดในการลบบัญชี");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+        }
+    }
+});
+
+        // เรียกฟังก์ชันโหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
+        loadAccountData();
+    </script>
+</body>
+</html>

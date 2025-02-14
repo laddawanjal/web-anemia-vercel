@@ -39,7 +39,8 @@
   <input type="text" id="nationality" name="nationality" required>
 
   <label for="phone">เบอร์โทรศัพท์:</label>
-  <input type="tel" id="phone" name="phone" required>
+  <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" maxlength="10">
+  
   
     <!-- ปุ่มส่งข้อมูล -->
   <button type="submit">ยืนยันการลงทะเบียน</button>

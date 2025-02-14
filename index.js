@@ -15,10 +15,16 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   process.exit(1); // หยุดโปรแกรมถ้าไม่มีค่า
 }
 
-const mongoURI = "mongodb://jal065771:jal065771@127.0.0.1:27017/webFormDB";
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
+
+// ตรวจสอบว่าต้องใช้ Local หรือ MongoDB Atlas
+const mongoURI = process.env.USE_LOCAL_DB === "true"
+  ? "mongodb://localhost:27017/webFormDB" // Local DB
+  : process.env.MONGODB_URI; // MongoDB Atlas
+
+// เชื่อมต่อ MongoDB (ลบ useUnifiedTopology)
+mongoose.connect(mongoURI, { useNewUrlParser: true })
+  .then(() => console.log(` Connected to MongoDB: ${mongoURI}`))
+  .catch(err => console.error(" Error connecting to MongoDB:", err));
 
 
 // ตรวจสอบว่า JSON ถูกต้องก่อนแปลง
@@ -38,7 +44,6 @@ const auth = new google.auth.GoogleAuth({
     scopes: ['https://www.googleapis.com/auth/drive'],
 });
 console.log("Google Credentials Loaded Successfully");
-
 
 require('dotenv').config(); // โหลด .env
 
@@ -70,22 +75,30 @@ const userSchema = new mongoose.Schema({
   gender: String,
   dob: String,
   nationality: String,
-  phone: String,
+  phone: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true, // ✅ ลบช่องว่างอัตโนมัติ
+    match: [/^\d{10}$/, "เบอร์โทรต้องมี 10 หลักเท่านั้น"], // ✅ ตรวจสอบอีกครั้งว่าเป็นตัวเลข 10 หลัก
+  },
   images: [
     {
       fileName: String,
       url: String,
-      uploadedAt:String, // เพิ่มฟิลด์สำหรับบันทึกผลลัพธ์การวิเคราะห์
+      uploadedAt: String,
     },
   ],
 });
 
 const User = mongoose.model("User", userSchema);
 
+
+
 // Middleware//
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "/Frontend")));
+app.use(express.static(path.join(__dirname, "../Frontend")));
 
 // Google Drive API Setup
   // ข้อมูลรับรองสำหรับเชื่อมต่อ Google API
@@ -112,11 +125,9 @@ const generateId = async () => {
   return newId;
 };
 
-
-
 // API Routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "Frontend/index1.html"));
+  res.sendFile(path.join(__dirname, "../Frontend/index1.html"));
 });
 
 app.post("/api/submit", async (req, res) => {
@@ -367,6 +378,66 @@ async function renameFile(fileId, newFileName) {
     return null;
   }
 }
+
+
+app.get("/api/get-user", async (req, res) => {
+  try {
+      const { phone } = req.query;
+      const user = await User.findOne({ phone });
+
+      if (user) {
+          res.json(user);
+      } else {
+          res.status(404).json({ message: "ไม่พบผู้ใช้" });
+      }
+  } catch (error) {
+      console.error("Error fetching user data:", error);
+      res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
+  }
+});
+
+app.post("/api/update-user", async (req, res) => {
+  try {
+      const { phone, name, gender, dob, nationality } = req.body;
+
+      const updatedUser = await User.findOneAndUpdate(
+          { phone }, // ค้นหาจากเบอร์โทร
+          { $set: { name, gender, dob, nationality } }, // อัปเดตข้อมูล
+          { new: true } // คืนค่าผลลัพธ์ที่อัปเดต
+      );
+
+      if (updatedUser) {
+          res.json({ message: "อัปเดตข้อมูลสำเร็จ!", updatedUser });
+      } else {
+          res.status(404).json({ message: "ไม่พบผู้ใช้" });
+      }
+  } catch (error) {
+      console.error("Error updating user data:", error);
+      res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปเดตข้อมูล" });
+  }
+});
+
+app.delete("/api/delete-user", async (req, res) => {
+  try {
+      const phone = req.query.phone; // รับค่า phone จาก query parameter
+
+      if (!phone) {
+          return res.status(400).json({ message: "กรุณาระบุเบอร์โทรศัพท์" });
+      }
+
+      const user = await User.findOneAndDelete({ phone: phone }); // ค้นหาและลบ
+
+      if (user) {
+          res.json({ message: "ลบบัญชีสำเร็จ!" });
+      } else {
+          res.status(404).json({ message: "ไม่พบผู้ใช้" });
+      }
+  } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "เกิดข้อผิดพลาดในการลบบัญชี" });
+  }
+});
+
 
 // เสิร์ฟไฟล์ Static
 app.use(express.static(path.join(__dirname, 'public')));
