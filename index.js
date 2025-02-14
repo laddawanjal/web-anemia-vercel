@@ -221,7 +221,7 @@ app.post('/upload', async (req, res) => {
     const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), fileName);
 
     if (!fileId) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 2' });
     }
 
     // สร้าง URL แบบ Public สำหรับไฟล์
@@ -313,7 +313,7 @@ app.post('/upload', async (req, res) => {
     const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), tempFileName);
 
     if (!fileId) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
+      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 1' });
     }
 
     // เปลี่ยนชื่อไฟล์ใน Google Drive
