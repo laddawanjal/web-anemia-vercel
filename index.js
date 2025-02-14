@@ -127,7 +127,7 @@ const generateId = async () => {
 
 // API Routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../Frontend/index1.html"));
+  res.sendFile(path.join(__dirname, "/Frontend/index1.html"));
 });
 
 app.post("/api/submit", async (req, res) => {
