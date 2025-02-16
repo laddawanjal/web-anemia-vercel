@@ -3,12 +3,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
-const fs = require("fs");
+
 const { google } = require("googleapis");
 
 const app = express();
 const PORT = 3009;
-require('dotenv').config(); // โหลดไฟล์ .env
+
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   console.error("Error: GOOGLE_APPLICATION_CREDENTIALS_JSON is not set in .env");
@@ -36,16 +36,13 @@ try {
   process.exit(1); // หยุดโปรแกรมถ้า JSON ไม่ถูกต้อง
 }
 
-// ดึงค่าจาก .env
+// ตั้งค่า Google Drive API
 const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-
 const auth = new google.auth.GoogleAuth({
-    credentials: credentials,
-    scopes: ['https://www.googleapis.com/auth/drive'],
+  credentials: credentials,
+  scopes: ['https://www.googleapis.com/auth/drive'],
 });
-console.log("Google Credentials Loaded Successfully");
 
-require('dotenv').config(); // โหลด .env
 
 
 
@@ -370,23 +367,6 @@ async function uploadFile(folderId, base64Data, fileName) {
 }
 
 
-async function renameFile(fileId, newFileName) {
-  try {
-    console.log("🔄 กำลังเปลี่ยนชื่อไฟล์บน Google Drive...");
-    
-    const response = await drive.files.update({
-      fileId: fileId,
-      requestBody: { name: newFileName },
-    });
-
-    console.log("✅ เปลี่ยนชื่อไฟล์สำเร็จ:", response.data);
-    return response.data;
-
-  } catch (error) {
-    console.error("❌ เกิดข้อผิดพลาดในการเปลี่ยนชื่อไฟล์:", error.message);
-    return null;
-  }
-}
 
 
 
