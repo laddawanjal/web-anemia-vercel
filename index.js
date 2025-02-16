@@ -342,41 +342,52 @@ app.post('/upload', async (req, res) => {
 
 async function uploadFile(folderId, base64Data, fileName) {
   try {
-      const tempFilePath = path.join(__dirname, fileName);
-      fs.writeFileSync(tempFilePath, base64Data, 'base64');
+    console.log("📤 กำลังอัปโหลดไฟล์ไปยัง Google Drive โดยใช้ Buffer...");
 
-      const response = await drive.files.create({
-          requestBody: {
-              name: fileName,
-              mimeType: 'image/jpeg',
-              parents: [folderId],
-          },
-          media: {
-              mimeType: 'image/jpeg',
-              body: fs.createReadStream(tempFilePath),
-          },
-      });
+    // แปลง Base64 เป็น Buffer (ไม่ต้องเขียนไฟล์ลง Disk)
+    const buffer = Buffer.from(base64Data, 'base64');
 
-      fs.unlinkSync(tempFilePath);
-      return response.data.id;
+    // อัปโหลดไฟล์ไปยัง Google Drive
+    const response = await drive.files.create({
+      requestBody: {
+        name: fileName,
+        mimeType: 'image/jpeg',
+        parents: [folderId],
+      },
+      media: {
+        mimeType: 'image/jpeg',
+        body: buffer, // ใช้ Buffer แทนการอ่านไฟล์
+      },
+    });
+
+    console.log("✅ อัปโหลดสำเร็จ:", response.data.id);
+    return response.data.id;
+
   } catch (error) {
-      console.error('Error uploading file:', error.message);
-      return null;
+    console.error("❌ Error uploading file:", error.message);
+    return null;
   }
 }
 
+
 async function renameFile(fileId, newFileName) {
   try {
+    console.log("🔄 กำลังเปลี่ยนชื่อไฟล์บน Google Drive...");
+    
     const response = await drive.files.update({
       fileId: fileId,
       requestBody: { name: newFileName },
     });
-    console.log("เปลี่ยนชื่อไฟล์สำเร็จ:", response.data);
+
+    console.log("✅ เปลี่ยนชื่อไฟล์สำเร็จ:", response.data);
     return response.data;
+
   } catch (error) {
-    console.error("เกิดข้อผิดพลาดในการเปลี่ยนชื่อไฟล์:", error.message);
+    console.error("❌ เกิดข้อผิดพลาดในการเปลี่ยนชื่อไฟล์:", error.message);
     return null;
   }
+}
+
 }
 
 
