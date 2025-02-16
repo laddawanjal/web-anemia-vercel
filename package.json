@@ -1,10 +1,13 @@
 {
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-core": "^4.22.0",
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "googleapis": "^144.0.0",
-    "mongoose": "^8.10.0"
+    "mongoose": "^8.10.0",
+    "tslib": "^2.8.1"
   }
 }
