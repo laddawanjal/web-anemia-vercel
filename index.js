@@ -9,7 +9,6 @@ const { google } = require("googleapis");
 const app = express();
 const PORT = 3009;
 
-
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   console.error("Error: GOOGLE_APPLICATION_CREDENTIALS_JSON is not set in .env");
   process.exit(1); // หยุดโปรแกรมถ้าไม่มีค่า
@@ -33,9 +32,6 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/drive'],
 });
 
-
-
-
 console.log("MongoDB URI:", mongoURI); // ตรวจสอบ URI
 
 console.log("MongoDB URI:", process.env.MONGODB_URI);
@@ -53,8 +49,6 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 
 app.get('/favicon.ico', (req, res) => res.status(204).end());
-
-
 
 const userSchema = new mongoose.Schema({
   id: String,
@@ -79,8 +73,6 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model("User", userSchema);
-
-
 
 // Middleware//
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -184,8 +176,6 @@ app.post("/api/get-user", async (req, res) => {
     res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
   }
 });
-
-
 
 
 async function getOrCreateFolder(folderName) {
@@ -321,7 +311,6 @@ async function getOrCreateFolder(folderName) {
 }
 
 
-
     const stream = require("stream");
 
 // ฟังก์ชันอัปโหลดไฟล์ไปยัง Google Drive
@@ -359,7 +348,6 @@ async function uploadFile(folderId, base64Data) {
 }
 
 
-    
 // ฟังก์ชันเปลี่ยนชื่อไฟล์ใน Google Drive
 async function renameFile(fileId, newFileName) {
   try {
@@ -382,12 +370,6 @@ async function renameFile(fileId, newFileName) {
     return null;
   }
 }
-
-
-
-
-
-
 
 
 app.get("/api/get-user", async (req, res) => {
@@ -448,11 +430,8 @@ app.delete("/api/delete-user", async (req, res) => {
   }
 });
 
-
 // เสิร์ฟไฟล์ Static
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 
 // Start Server
 app.listen(PORT, () => {
