@@ -97,18 +97,10 @@ app.use(express.static(path.join(__dirname, "/Frontend")));
   // ข้อมูลรับรองสำหรับเชื่อมต่อ Google API
 // ดึงค่าจาก .env
 
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN;
-
-  
-const REDIRECT_URL = 'https://developers.google.com/oauthplayground';
 
 
-const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
-oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const drive = google.drive({ version: "v3", auth }); // ✅ ใช้ auth ที่สร้างจาก GOOGLE_APPLICATION_CREDENTIALS_JSON
 
-const drive = google.drive({ version: "v3", auth: oauth2Client });
 
 // Generate ID Function
 const generateId = async () => {
