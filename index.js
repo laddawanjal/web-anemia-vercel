@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
-
+const stream = require("stream");
 const { google } = require("googleapis");
 
 const app = express();
@@ -100,7 +100,7 @@ app.use(express.static(path.join(__dirname, "/Frontend")));
 
 
 const drive = google.drive({ version: "v3", auth }); // ✅ ใช้ auth ที่สร้างจาก GOOGLE_APPLICATION_CREDENTIALS_JSON
-
+const folderId = "1NVQA00IaE5iWjHPoP93MltvYcQESOPj9"
 
 // Generate ID Function
 const generateId = async () => {
@@ -186,38 +186,6 @@ app.post("/api/get-user", async (req, res) => {
 
 
 
-// ฟังก์ชันสำหรับตรวจสอบว่ามีโฟลเดอร์อยู่แล้วหรือไม่ ถ้าไม่มีจะสร้างใหม่
-async function getOrCreateFolder(folderName) {
-  try {
-    const response = await drive.files.list({
-      q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-      fields: 'files(id, name)',
-    });
-
-    if (response.data.files.length > 0) {
-      console.log('📁 พบโฟลเดอร์:', response.data.files[0].name);
-      return response.data.files[0].id;
-    } else {
-      const folderResponse = await drive.files.create({
-        requestBody: {
-          name: folderName,
-          mimeType: 'application/vnd.google-apps.folder',
-        },
-      });
-
-      if (!folderResponse.data.id) {
-        console.error("❌ Failed to create folder.");
-        return null;
-      }
-
-      console.log('✅ สร้างโฟลเดอร์ใหม่สำเร็จ:', folderResponse.data.name);
-      return folderResponse.data.id;
-    }
-  } catch (error) {
-    console.error('❌ เกิดข้อผิดพลาดในการตรวจสอบหรือสร้างโฟลเดอร์:', error.message);
-    return null;
-  }
-}
 
 
 async function generatePublicURL(fileId) {
@@ -294,7 +262,7 @@ if (!fileId) {
 
 const stream = require("stream");
 
-async function uploadFile(folderId, base64Image, fileName) {
+async function uploadFile(base64Image, fileName) {
   try {
     // แปลง Base64 เป็น Buffer
     const buffer = Buffer.from(base64Image.replace(/^data:image\/\w+;base64,/, ""), "base64");
@@ -303,17 +271,19 @@ async function uploadFile(folderId, base64Image, fileName) {
     const bufferStream = new stream.PassThrough();
     bufferStream.end(buffer);
 
-    // อัปโหลดไปยัง Google Drive
+    // ตั้งค่าข้อมูลไฟล์
     const fileMetadata = {
       name: fileName,
-      parents: [folderId],
+      parents: [folderId], // ✅ ใช้ Folder ID คงที่
     };
 
+    // ตั้งค่าไฟล์ที่จะอัปโหลด
     const media = {
       mimeType: "image/jpeg",
       body: bufferStream,
     };
 
+    // อัปโหลดไปยัง Google Drive
     const file = await drive.files.create({
       resource: fileMetadata,
       media: media,
@@ -332,6 +302,7 @@ async function uploadFile(folderId, base64Image, fileName) {
     return null;
   }
 }
+
 
 
 
