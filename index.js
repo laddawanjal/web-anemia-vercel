@@ -215,8 +215,17 @@ app.post('/upload', async (req, res) => {
     const uniqueSuffix = Date.now(); // ใช้ timestamp เพื่อลดโอกาสซ้ำ
     const fileName = `${analysisResult.replace(/\s+/g, '_')}_${uniqueSuffix}.jpg`;
 
-    const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), fileName);
-
+    
+    try {
+      const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), fileName);
+      if (!fileId) {
+          throw new Error('File ID is null');
+      }
+  } catch (error) {
+      console.error("Upload error:", error);
+      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 2', error: error.message });
+  }
+  
     if (!fileId) {
       return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 2' });
     }
