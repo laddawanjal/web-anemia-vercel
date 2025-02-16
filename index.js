@@ -388,7 +388,7 @@ async function renameFile(fileId, newFileName) {
   }
 }
 
-}
+
 
 
 app.get("/api/get-user", async (req, res) => {
