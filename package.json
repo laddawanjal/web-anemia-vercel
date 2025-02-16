@@ -9,5 +9,8 @@
     "googleapis": "^144.0.0",
     "mongoose": "^8.10.0",
     "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
   }
 }
