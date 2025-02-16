@@ -24,16 +24,10 @@ const mongoURI = process.env.USE_LOCAL_DB === "true"
 
 
 // ตรวจสอบว่า JSON ถูกต้องก่อนแปลง
-try {
-  const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-  console.log("Google Credentials Loaded:", credentials); // ตรวจสอบค่าที่โหลด
-} catch (err) {
-  console.error("Error parsing GOOGLE_APPLICATION_CREDENTIALS_JSON:", err.message);
-  process.exit(1); // หยุดโปรแกรมถ้า JSON ไม่ถูกต้อง
-}
 
-// ตั้งค่า Google Drive API
 const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+
+
 const auth = new google.auth.GoogleAuth({
   credentials: credentials,
   scopes: ['https://www.googleapis.com/auth/drive'],
@@ -253,35 +247,31 @@ async function generatePublicURL(fileId) {
 
 
 // Endpoint สำหรับอัปโหลดรูปภาพ
-app.post('/upload', async (req, res) => {
+app.post("/upload", async (req, res) => {
   try {
-    const { image, phone, analysisResult } = req.body;
+    const { image, phone, fileName } = req.body;
 
-    if (!image || !phone) {
-      return res.status(400).json({ message: "ข้อมูล image หรือ phone ไม่ครบถ้วน" });
+    if (!image || !fileName || !phone) {
+      return res.status(400).json({ message: "Missing image, fileName, or phone" });
     }
 
     // ค้นหาผู้ใช้ใน MongoDB
     const user = await User.findOne({ phone });
     if (!user) {
-      return res.status(404).json({ message: 'ไม่พบผู้ใช้ในระบบ' });
+      return res.status(404).json({ message: "ไม่พบผู้ใช้ในระบบ" });
     }
 
     // อัปโหลดไฟล์ไปยัง Google Drive
-    const folderId = await getOrCreateFolder('webanemia_image');
-    const fileName = `${analysisResult ? analysisResult.replace(/\s+/g, '_') : 'unknown'}_${Date.now()}.jpg`;
+    const fileId = await uploadFileToDrive(image, fileName);
 
-    const fileId = await uploadFile(folderId, image, fileName);
-if (!fileId) {
-  console.error("❌ Upload failed: No file ID returned.");
-  return res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์ไปยัง Google Drive" });
-}
-
+    if (!fileId) {
+      return res.status(500).json({ message: "Upload failed" });
+    }
 
     // สร้าง URL แบบ Public
     const webViewLink = await generatePublicURL(fileId);
     if (!webViewLink) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้าง URL ของไฟล์' });
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดในการสร้าง URL ของไฟล์" });
     }
 
     // บันทึกข้อมูลรูปภาพใน MongoDB
@@ -291,55 +281,68 @@ if (!fileId) {
     });
 
     await user.save();
-    res.json({ message: 'อัปโหลดสำเร็จ!', webViewLink });
+
+    res.json({ message: "อัปโหลดสำเร็จ!", webViewLink });
 
   } catch (error) {
-    console.error('Error:', error.message);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการประมวลผล' });
+    console.error("❌ Error:", error.message);
+    res.status(500).json({ message: "Upload failed" });
   }
 });
 
 
-const stream = require("stream");
 
-async function uploadFile(folderId, base64Image, fileName) {
-  try {
-    // แปลง Base64 เป็น Buffer
-    const buffer = Buffer.from(base64Image.replace(/^data:image\/\w+;base64,/, ""), "base64");
 
-    // สร้าง Stream สำหรับอัปโหลดไฟล์โดยตรง
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(buffer);
+    const stream = require("stream");
 
-    // อัปโหลดไปยัง Google Drive
-    const fileMetadata = {
-      name: fileName,
-      parents: [folderId],
-    };
-
-    const media = {
-      mimeType: "image/jpeg",
-      body: bufferStream,
-    };
-
-    const file = await drive.files.create({
-      resource: fileMetadata,
-      media: media,
-      fields: "id",
-    });
-
-    if (!file.data.id) {
-      console.error("❌ Upload failed: No file ID returned.");
-      return null;
+    async function uploadFileToDrive(base64Image, fileName) {
+      try {
+        const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+        if (!folderId) {
+          throw new Error("❌ GOOGLE_DRIVE_FOLDER_ID is not set in .env");
+        }
+    
+        console.log("📤 Uploading to Folder ID:", folderId);
+    
+        // แปลง Base64 เป็น Buffer
+        const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+    
+        // ใช้ Stream ในการอัปโหลด
+        const bufferStream = new stream.PassThrough();
+        bufferStream.end(buffer);
+    
+        // อัปโหลดไฟล์ไปยัง Google Drive
+        const fileMetadata = {
+          name: fileName,
+          parents: [folderId], // อัปโหลดเข้าโฟลเดอร์
+        };
+    
+        const media = {
+          mimeType: "image/png", // หรือ "image/jpeg" ตามประเภทของไฟล์
+          body: bufferStream,
+        };
+    
+        const file = await drive.files.create({
+          resource: fileMetadata,
+          media: media,
+          fields: "id",
+        });
+    
+        if (!file.data.id) {
+          throw new Error("Upload failed: No file ID returned.");
+        }
+    
+        console.log(`✅ Upload Success: ${fileName} (File ID: ${file.data.id})`);
+        return file.data.id;
+    
+      } catch (error) {
+        console.error("❌ Upload error:", error.message);
+        return null;
+      }
     }
+    
 
-    console.log(`✅ Upload Success: ${fileName} (File ID: ${file.data.id})`);
-    return file.data.id;
-  } catch (error) {
-    console.error("❌ Error uploading file:", error.message);
-    return null;
-  }
-}
 
 
 
