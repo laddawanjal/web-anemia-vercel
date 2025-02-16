@@ -21,10 +21,6 @@ const mongoURI = process.env.USE_LOCAL_DB === "true"
   ? "mongodb://localhost:27017/webFormDB" // Local DB
   : process.env.MONGODB_URI; // MongoDB Atlas
 
-// เชื่อมต่อ MongoDB (ลบ useUnifiedTopology)
-mongoose.connect(mongoURI, { useNewUrlParser: true })
-  .then(() => console.log(` Connected to MongoDB: ${mongoURI}`))
-  .catch(err => console.error(" Error connecting to MongoDB:", err));
 
 
 // ตรวจสอบว่า JSON ถูกต้องก่อนแปลง
@@ -195,61 +191,8 @@ app.post("/api/get-user", async (req, res) => {
   }
 });
 
-// API สำหรับเพิ่มรูปภาพลงใน Google Drive และเก็บ URL ใน MongoDB
-app.post('/upload', async (req, res) => {
-  try {
-    const { image, phone, analysisResult } = req.body;
 
-    if (!image || !phone) { // เอา analysisResult ออกจากเงื่อนไข
-      return res.status(400).json({ message: "ข้อมูล image หรือ phone ไม่ครบถ้วน" });
-  }
-  
-    // ค้นหาผู้ใช้ใน MongoDB
-    const user = await User.findOne({ phone });
-    if (!user) {
-      return res.status(404).json({ message: 'ไม่พบผู้ใช้ในระบบ' });
-    }
 
-    // อัปโหลดไฟล์ไปยัง Google Drive
-    const folderId = await getOrCreateFolder('webanemia_image');
-    const uniqueSuffix = Date.now(); // ใช้ timestamp เพื่อลดโอกาสซ้ำ
-    const fileName = `${analysisResult.replace(/\s+/g, '_')}_${uniqueSuffix}.jpg`;
-
-    
-    try {
-      const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), fileName);
-      if (!fileId) {
-          throw new Error('File ID is null');
-      }
-  } catch (error) {
-      console.error("Upload error:", error);
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 2', error: error.message });
-  }
-  
-    if (!fileId) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 2' });
-    }
-
-    // สร้าง URL แบบ Public สำหรับไฟล์
-    const webViewLink = await generatePublicURL(fileId);
-
-    if (!webViewLink) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้าง URL ของไฟล์' });
-    }
-
-    // บันทึกข้อมูลใน MongoDB
-    user.images.push({
-      fileName, // ใช้ชื่อที่ตั้งไว้
-      url: webViewLink,
-    });
-
-    await user.save();
-    res.json({ message: 'อัปโหลดและตั้งชื่อสำเร็จ', webViewLink });
-  } catch (error) {
-    console.error('Error uploading file:', error.message);
-    res.status(500).json({ message: 'เกิดข้อผิดพลาดในการประมวลผล' });
-  }
-});
 
 // ฟังก์ชันสำหรับตรวจสอบว่ามีโฟลเดอร์อยู่แล้วหรือไม่ ถ้าไม่มีจะสร้างใหม่
 async function getOrCreateFolder(folderName) {
@@ -260,7 +203,7 @@ async function getOrCreateFolder(folderName) {
     });
 
     if (response.data.files.length > 0) {
-      console.log('พบโฟลเดอร์:', response.data.files[0]);
+      console.log('📁 พบโฟลเดอร์:', response.data.files[0].name);
       return response.data.files[0].id;
     } else {
       const folderResponse = await drive.files.create({
@@ -269,42 +212,53 @@ async function getOrCreateFolder(folderName) {
           mimeType: 'application/vnd.google-apps.folder',
         },
       });
-      console.log('สร้างโฟลเดอร์ใหม่สำเร็จ:', folderResponse.data);
+
+      if (!folderResponse.data.id) {
+        console.error("❌ Failed to create folder.");
+        return null;
+      }
+
+      console.log('✅ สร้างโฟลเดอร์ใหม่สำเร็จ:', folderResponse.data.name);
       return folderResponse.data.id;
     }
   } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการตรวจสอบหรือสร้างโฟลเดอร์:', error.message);
-  }
-}
-
-async function generatePublicURL(fileId) {
-  try {
-    // ตั้งค่าการอนุญาตให้ไฟล์เข้าถึงได้แบบสาธารณะ
-    await drive.permissions.create({
-      fileId: fileId, // ใช้ fileId ที่ได้รับจากการอัปโหลด
-      requestBody: {
-        role: 'reader', // สิทธิ์อ่านอย่างเดียว
-        type: 'anyone', // ใครก็ได้สามารถเข้าถึง
-      },
-    });
-
-    // สร้าง URL สำหรับแสดงผลโดยตรง
-    const publicUrl = `https://drive.google.com/uc?id=${fileId}&export=view`; // ใช้ URL ที่แสดงภาพโดยตรง
-    console.log('สร้างลิงก์แบบ public สำเร็จ:', publicUrl);
-    return publicUrl;
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการสร้างลิงก์ public:', error.message);
+    console.error('❌ เกิดข้อผิดพลาดในการตรวจสอบหรือสร้างโฟลเดอร์:', error.message);
     return null;
   }
 }
+
+
+async function generatePublicURL(fileId) {
+  try {
+    await drive.permissions.create({
+      fileId: fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+
+    // รอให้สิทธิ์มีผลก่อนสร้างลิงก์
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const publicUrl = `https://drive.google.com/uc?id=${fileId}&export=view`;
+    console.log(`✅ Public URL Created: ${publicUrl}`);
+    return publicUrl;
+  } catch (error) {
+    console.error('❌ เกิดข้อผิดพลาดในการสร้างลิงก์ public:', error.message);
+    return null;
+  }
+}
+
+
 
 // Endpoint สำหรับอัปโหลดรูปภาพ
 app.post('/upload', async (req, res) => {
   try {
     const { image, phone, analysisResult } = req.body;
 
-    if (!image || !phone || !analysisResult) {
-      return res.status(400).json({ message: "ข้อมูล image, phone หรือ analysisResult ไม่ครบถ้วน" });
+    if (!image || !phone) {
+      return res.status(400).json({ message: "ข้อมูล image หรือ phone ไม่ครบถ้วน" });
     }
 
     // ค้นหาผู้ใช้ใน MongoDB
@@ -315,16 +269,14 @@ app.post('/upload', async (req, res) => {
 
     // อัปโหลดไฟล์ไปยัง Google Drive
     const folderId = await getOrCreateFolder('webanemia_image');
-    const tempFileName = `temp_${Date.now()}.jpg`; // ชื่อไฟล์ชั่วคราว
-    const fileId = await uploadFile(folderId, image.replace(/^data:image\/\w+;base64,/, ''), tempFileName);
+    const fileName = `${analysisResult ? analysisResult.replace(/\s+/g, '_') : 'unknown'}_${Date.now()}.jpg`;
 
-    if (!fileId) {
-      return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์ 1' });
-    }
+    const fileId = await uploadFile(folderId, image, fileName);
+if (!fileId) {
+  console.error("❌ Upload failed: No file ID returned.");
+  return res.status(500).json({ message: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์ไปยัง Google Drive" });
+}
 
-    // เปลี่ยนชื่อไฟล์ใน Google Drive
-    const newFileName = `${analysisResult.replace(/\s+/g, '_')}_${Date.now()}.jpg`;
-    await renameFile(fileId, newFileName);
 
     // สร้าง URL แบบ Public
     const webViewLink = await generatePublicURL(fileId);
@@ -332,48 +284,64 @@ app.post('/upload', async (req, res) => {
       return res.status(500).json({ message: 'เกิดข้อผิดพลาดในการสร้าง URL ของไฟล์' });
     }
 
-    // บันทึกข้อมูลใน MongoDB
+    // บันทึกข้อมูลรูปภาพใน MongoDB
     user.images.push({
-      fileName: newFileName,
+      fileName,
       url: webViewLink,
     });
 
     await user.save();
-    res.json({ message: 'อัปโหลดและเปลี่ยนชื่อสำเร็จ!', webViewLink });
+    res.json({ message: 'อัปโหลดสำเร็จ!', webViewLink });
+
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).json({ message: 'เกิดข้อผิดพลาดในการประมวลผล' });
   }
 });
 
-async function uploadFile(folderId, base64Data, fileName) {
+
+const stream = require("stream");
+
+async function uploadFile(folderId, base64Image, fileName) {
   try {
-    console.log("📤 กำลังอัปโหลดไฟล์ไปยัง Google Drive โดยใช้ Buffer...");
+    // แปลง Base64 เป็น Buffer
+    const buffer = Buffer.from(base64Image.replace(/^data:image\/\w+;base64,/, ""), "base64");
 
-    // แปลง Base64 เป็น Buffer (ไม่ต้องเขียนไฟล์ลง Disk)
-    const buffer = Buffer.from(base64Data, 'base64');
+    // สร้าง Stream สำหรับอัปโหลดไฟล์โดยตรง
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(buffer);
 
-    // อัปโหลดไฟล์ไปยัง Google Drive
-    const response = await drive.files.create({
-      requestBody: {
-        name: fileName,
-        mimeType: 'image/jpeg',
-        parents: [folderId],
-      },
-      media: {
-        mimeType: 'image/jpeg',
-        body: buffer, // ใช้ Buffer แทนการอ่านไฟล์
-      },
+    // อัปโหลดไปยัง Google Drive
+    const fileMetadata = {
+      name: fileName,
+      parents: [folderId],
+    };
+
+    const media = {
+      mimeType: "image/jpeg",
+      body: bufferStream,
+    };
+
+    const file = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: "id",
     });
 
-    console.log("✅ อัปโหลดสำเร็จ:", response.data.id);
-    return response.data.id;
+    if (!file.data.id) {
+      console.error("❌ Upload failed: No file ID returned.");
+      return null;
+    }
 
+    console.log(`✅ Upload Success: ${fileName} (File ID: ${file.data.id})`);
+    return file.data.id;
   } catch (error) {
     console.error("❌ Error uploading file:", error.message);
     return null;
   }
 }
+
+
 
 
 
