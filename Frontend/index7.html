@@ -122,10 +122,10 @@ document.getElementById("predictButton").addEventListener("click", async () => {
     // กำหนดข้อความภาษาไทยและสี
     let thaiMessage = "";
     let resultColor = "";
-    if (resultMessage === "anemia") {
+    if (resultMessage === "Class 0") {
       thaiMessage = "มีภาวะโลหิตจาง";
       resultColor = "red";
-    } else if (resultMessage === "no risk anemia") {
+    } else if (resultMessage === "Class 1") {
       thaiMessage = "ไม่มีภาวะเป็นโลหิตจาง";
       resultColor = "green";
     }
